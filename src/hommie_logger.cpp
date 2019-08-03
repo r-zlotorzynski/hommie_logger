@@ -17,22 +17,19 @@
 ********************************************************************************************************************/
 
 
-// UŻYJ KLASY ŚRODOWISKOWEJ - Arduino SDK
+// Use enviromental class - Arduino SDK
 #include <Arduino.h>
 
-// OBSŁUGA SYSTEMU PLIKÓW
+// Filesystem library
 #include <FS.h>
 
-// OBSŁUGA KART SD
-#include <SD.h>
-
-// Obsługa wewnętrznego systemu plików
+// Support for the internal file system
 #include <SPIFFS.h>
 
-// Obsługa wewnętrznego systemu plików
+// hommie logger library - constans
 #include "hommie_logger_const.h"
 
-// Obsługa wewnętrznego systemu plików
+// hommie logger library
 #include "hommie_logger.h"
 
 
@@ -44,8 +41,8 @@
     * @public
 */
 bool class_hommie_logger::init( bool auto_start ) {
+    // System logs
     #if DEBUG_INFO_FS
-        // Logi systemowe
         Serial.println( "hommie logger -> Initialization..." );
     #endif
 
@@ -53,10 +50,10 @@ bool class_hommie_logger::init( bool auto_start ) {
     if ( auto_start ) {
         // Próba inicjalizacji wewnętrznego systemu plików
         if ( !SPIFFS.begin( true ) ) {
-            // Logi systemowe
+            // System logs
             Serial.println( "hommie logger -> OK!" );
         } else {
-            // Logi systemowe
+            // System logs
             Serial.println( "hommie logger -> FAILED!" );
         }
     } 
@@ -92,15 +89,15 @@ void class_hommie_logger::set_max_logs( uint16_t max_logs ) {
     * @param        {bool}                                          use_timestamp                               Usage timestamp
     * @public
 */
-void class_hommie_logger::set_max_logs( bool use_timestamp ) {
+void class_hommie_logger::set_usage_timestamp( bool use_timestamp ) {
     this->is_use_uptime = use_timestamp;
 }
 
 /**
     * TODO: Creates a new record in the file using the circular buffer algorithm
     *
-    * @return           {string}                                    path_to_file                                Ścieżka do badanego pliku
-    * @return           {boolean}                                                                               Powodzenie lub nie
+    * @return           {string}                                    path_to_file                                Path to the file being tested
+    * @return           {boolean}                                                                               Success or not
     * @public
 */
 bool class_hommie_logger::append( String message ) {
@@ -129,7 +126,7 @@ bool class_hommie_logger::append( String message ) {
             this->save_logs_count = 0;
         }
 
-        // Logi systemowe
+        // System logs
         #if DEBUG_INFO_FS
             Serial.println( "hommie logger -> Określono aktualną ilość logów w pliku -> " + String( this->save_logs_count ) );
         #endif
@@ -154,7 +151,7 @@ bool class_hommie_logger::append( String message ) {
 
         //Dopisanie się nie powiodło     
         if ( !file.println( message ) ) {
-            // Logi systemowe
+            // System logs
             #if DEBUG_INFO_FS
                 Serial.println( "hommie logger -> Nie udało się dopisać logów!" );
             #endif
@@ -175,7 +172,7 @@ bool class_hommie_logger::append( String message ) {
         // Inkrementuj ilośc logów
         this->save_logs_count++;
 
-        // Logi systemowe
+        // System logs
         #if DEBUG_INFO_FS
             Serial.println( "hommie logger -> Dopisano log -> " + String( this->save_logs_count ) );
         #endif
@@ -225,7 +222,7 @@ bool class_hommie_logger::append( String message ) {
         // Wykonuj do końca pliku
         } while ( length );
 
-        // Logi systemowe
+        // System logs
         #if DEBUG_INFO_FS
             Serial.println( "hommie logger -> (C-BUFFER) znalazłem koniec linii -> " + String( pointer_seek ) );
         #endif
@@ -241,7 +238,7 @@ bool class_hommie_logger::append( String message ) {
             // Pobierz 2 znaki
             length = file.read( buffer , sizeof( buffer ) );
 
-            // Logi systemowe
+            // System logs
             #if DEBUG_INFO_FS
                 Serial.println( "hommie logger -> (C-BUFFER) czytam stary pakiet -> " + String( length ) );
             #endif
@@ -252,7 +249,7 @@ bool class_hommie_logger::append( String message ) {
         // Wykonuj do końca pliku
         } while ( length );
 
-        // Logi systemowe
+        // System logs
         #if DEBUG_INFO_FS
             Serial.println( "hommie logger -> (C-BUFFER) przepisałem plik na nowy" );
         #endif
@@ -272,7 +269,7 @@ bool class_hommie_logger::append( String message ) {
         // Zmień nazwę nowego pliku na stary plik
         this->rename( this->_log_file , this->log_file );
 
-        // Logi systemowe
+        // System logs
         #if DEBUG_INFO_FS
             Serial.println( "hommie logger -> C-BUFFER -> Nadpisano najstarszy log" );
         #endif
@@ -286,10 +283,21 @@ bool class_hommie_logger::append( String message ) {
 }
 
 /**
+    * TODO: Gets the file handle to read
+    *
+    * @return           {handler}                                                                               File handler
+    * @public
+*/
+File class_hommie_logger::get_read_handler() {
+    // Otwieram plik
+    return this->get_handler_loc( this->log_file );
+}
+
+/**
     * TODO: Download the number of text file lines
     *
-    * @param            {handler}                               path_to_file                            Uchwyt do pliku
-    * @return           {int}                                   is_used_sd                              Ilość linii w pliku
+    * @param            {handler}                                   path_to_file                                File handler
+    * @return           {int}                                       is_used_sd                                  The number of lines in the file
     * @public
 */
 int class_hommie_logger::get_line_count( File file ) {
@@ -345,23 +353,23 @@ void class_hommie_logger::print_logs( HardwareSerial &COM ) {
 /****************************************************************************** Obsługa plików i katalogów *******************************************************************************/
 
 /**
-    * TODO: Pobiera uchwyt do pliku w systemie plików
+    * TODO: Gets the file handle in the file system
     *
-    * @param            {string}                                path_to_file                            Ścieżka do badanego pliku
-    * @param            {boolean}                               is_used_sd                              Czy plik ma zostać zbadany w wewnętrznym czy zewnętrznym systemie plików
-    * @param            {boolean}                               method_access                           Czy dostęp do pliku obejmuje odczyt, zapis, dopisanie
+    * @param            {string}                                    path_to_file                                Path to the file being tested
+    * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
+    * @param            {boolean}                                   method_access                               Is access to the file includes reading, writing, adding
     * @example
     *   0 - tylko odczyt
     *   1 - zapis
     *   2 - dopisanie do pliku
-    * @return           {handler}                                                                       Uchwyt do pliku
+    * @return           {handler}                                                                               File handler
     * @public
 */
 File class_hommie_logger::get_handler_loc( String path_to_file , uint8_t method_access ) {
     // Uchwyt pliku
     File file;
 
-    // Logi systemowe
+    // System logs
     #if DEBUG_INFO_FS
         Serial.println( "hommie logger -> Otwieram lokalizację: " + path_to_file );
     #endif
@@ -378,11 +386,11 @@ File class_hommie_logger::get_handler_loc( String path_to_file , uint8_t method_
 }
 
 /**
-    * TODO: Sprawdza czy dany katalog istnieje
+    * TODO: Checks whether a given directory exists
     *
-    * @param            {string}                                path_to_dir                             Ścieżka do drzewa katalogów
-    * @param            {boolean}                               is_used_sd                              Czy plik ma zostać zbadany w wewnętrznym czy zewnętrznym systemie plików
-    * @return           {boolean}                                                                       Czy katalog istnieje
+    * @param            {string}                                    path_to_dir                                 Path to the directory tree
+    * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
+    * @return           {boolean}                                                                               Does the directory exist
     * @public
 */
 bool class_hommie_logger::is_dir_exists( String path_to_dir ) {
@@ -415,15 +423,15 @@ bool class_hommie_logger::is_dir_exists( String path_to_dir ) {
 }
 
 /**
-    * TODO: Rekurencyjnie tworzy drzewo katalogów
+    * TODO: Recursively creates a directory tree
     *
-    * @param            {string}                                path_to_dir                             Ścieżka do drzewa katalogów
-    * @param            {boolean}                               is_used_sd                              Czy plik ma zostać zbadany w wewnętrznym czy zewnętrznym systemie plików
-    * @return           {boolean}                                                                       Czy procedura została zrealizowana poprawnie
+    * @param            {string}                                    path_to_dir                                 Path to the directory tree
+    * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
+    * @return           {boolean}                                                                               Has the procedure been carried out correctly
     * @public
 */
 bool class_hommie_logger::create_dir( String path_to_dir ) {
-    // Logi systemowe
+    // System logs
     #if DEBUG_INFO_FS
         Serial.println( "hommie logger -> Tworzę katalog: " + path_to_dir );
     #endif
@@ -433,16 +441,16 @@ bool class_hommie_logger::create_dir( String path_to_dir ) {
 }
 
 /**
-    * TODO: Zmień nazwę
+    * TODO: Rename file
     *
-    * @param            {string}                                path_to_file                            Nazwa aktualna
-    * param             {string}                                new_path_to_file                        Nowa nazwa
-    * @param            {boolean}                               is_used_sd                              Czy plik ma zostać zbadany w wewnętrznym czy zewnętrznym systemie plików
-    * @return           {boolean}                                                                       Czy plik istnieje
+    * @param            {string}                                    path_to_file                                Current name
+    * param             {string}                                    new_path_to_file                            New name
+    * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
+    * @return           {boolean}                                                                               Czy plik istnieje
     * @public
 */
 bool class_hommie_logger::rename( String path_to_file , String new_path_to_file ) {
-    // Logi systemowe
+    // System logs
     #if DEBUG_INFO_FS
         Serial.println( "hommie logger -> Zmieniam nazwę: " + path_to_file + " na " + new_path_to_file );
     #endif
@@ -452,15 +460,15 @@ bool class_hommie_logger::rename( String path_to_file , String new_path_to_file 
 }
 
 /**
-    * TODO: Usuwa plik
+    * TODO: Delete file
     *
-    * @param            {string}                                path_to_file                            Ścieżka do pliku
-    * @param            {boolean}                               is_used_sd                              Czy plik ma zostać zbadany w wewnętrznym czy zewnętrznym systemie plików
-    * @return           {boolean}                                                                       Czy procedura została zrealizowana poprawnie
+    * @param            {string}                                    path_to_file                                File path
+    * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
+    * @return           {boolean}                                                                               Has the procedure been carried out correctly
     * @public
 */
 bool class_hommie_logger::delete_file( String path_to_file ) {
-    // Logi systemowe
+    // System logs
     #if DEBUG_INFO_FS
         Serial.println( "hommie logger -> Usuwam plik: " + path_to_file );
     #endif

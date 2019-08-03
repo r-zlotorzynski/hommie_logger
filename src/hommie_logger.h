@@ -17,23 +17,23 @@
 ********************************************************************************************************************/
 
 
-// UŻYJ KLASY ŚRODOWISKOWEJ - Arduino SDK
+// Use enviromental class - Arduino SDK
 #include <Arduino.h>
 
-// OBSŁUGA SYSTEMU PLIKÓW
+// Filesystem library
 #include <FS.h>
 
-// Obsługa wewnętrznego systemu plików
+// Support for the internal file system
 #include <SPIFFS.h>
 
 
 /**
-    * TODO: Definicja klasy
+    * TODO: Class defined
     *
     * @public
 */
 class class_hommie_logger {
-    // Metody publiczne
+    // Public method
     public:
         // TODO: File system initialization
         bool init( bool auto_start = true );
@@ -45,7 +45,7 @@ class class_hommie_logger {
         void set_max_logs( uint16_t max_logs = 30 );
 
         // TODO: Set usage timestamp inline
-        void set_max_logs( bool use_timestamp = true );
+        void set_usage_timestamp( bool use_timestamp = true );
 
         // TODO: Print logs on port COM
         void print_logs( HardwareSerial &COM );
@@ -53,7 +53,10 @@ class class_hommie_logger {
         // TODO: Creates a new record in the file using the circular buffer algorithm
         bool append( String message );
 
-    // Metody i zmienne prywatne
+        // TODO: Gets the file handle to read
+        File get_read_handler();
+
+    // Private methods and variables
     private:
         // Buffer i busy
         bool is_busy                = false;
@@ -82,21 +85,21 @@ class class_hommie_logger {
         // TODO: Download the number of text file lines
         int get_line_count( File file );
 
-        // TODO: Pobiera uchwyt do pliku w systemie plików
+        // TODO: Gets the file handle in the file system
         File get_handler_loc( String path_to_file , uint8_t method_access = 0 );
 
-        // TODO: Sprawdza czy dany katalog istnieje
+        // TODO: Checks whether a given directory exists
         bool is_dir_exists( String path_to_dir );
 
-        // TODO: Rekurencyjnie tworzy drzewo katalogów
+        // TODO: Recursively creates a directory tree
         bool create_dir( String path_to_dir );
 
-        // TODO: Usuwa plik
+        // TODO: Delete file
         bool delete_file( String path_to_file );
 
-        // TODO: Zmień nazwę
+        // TODO: Renemae file
         bool rename( String path_to_file , String new_path_to_file );
 };
 
-// Przypisz klasę na zmienną dostępową
+// Assign a class to an access variable
 extern class_hommie_logger hommie_logger;

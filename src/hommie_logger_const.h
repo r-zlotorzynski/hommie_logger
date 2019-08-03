@@ -16,26 +16,18 @@
     @todo           Definition of the constans class
 ********************************************************************************************************************/
 
-// UŻYJ KLASY ŚRODOWISKOWEJ - Arduino SDK
+// Use enviromental class - Arduino SDK
 #include <Arduino.h>
 
 
-// Jeśli jeszcze nie zdefiniowano stałych...
+// If you have not defined constants yet...
 #if !defined ( CONST_ALREADY_DECLARED )
-    // Ustawienie zmiennej - Stałe już zostały zadeklarowane
+    // Setting variable - Constants have already been declared
     #define CONST_ALREADY_DECLARED true
 
 
-
-    // Czy moduł ma zostać debugowany
+    // Whether the module should be debugged
     #define DEBUG_INFO_FS false
-
-
-
-
-
-
-
 
 
 #endif
