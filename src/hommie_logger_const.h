@@ -28,7 +28,7 @@
 
 
     // Czy moduł ma zostać debugowany
-    #define DEBUG_INFO_FS true
+    #define DEBUG_INFO_FS false
 
 
 

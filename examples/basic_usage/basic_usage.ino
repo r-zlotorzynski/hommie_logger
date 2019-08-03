@@ -55,5 +55,7 @@ void loop ( void ) {
     delay( 5000 );
 
     // Show file logs
-    hommie_logger.print_logs( Serial );
+    Serial.println( "------------ List save logs ------------" );
+        hommie_logger.print_logs( Serial );
+    Serial.println( "----------------------------------------" );
 }

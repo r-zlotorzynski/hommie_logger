@@ -77,6 +77,26 @@ void class_hommie_logger::set_controller( fs::FS &fs ) {
 }
 
 /**
+    * TODO: Set max logs
+    *
+    * @param        {uint16}                                        max_logs                                    Max. logs count
+    * @public
+*/
+void class_hommie_logger::set_max_logs( uint16_t max_logs ) {
+    this->max_logs_line = max_logs;
+}
+
+/**
+    * TODO: Set usage timestamp inline
+    *
+    * @param        {bool}                                          use_timestamp                               Usage timestamp
+    * @public
+*/
+void class_hommie_logger::set_max_logs( bool use_timestamp ) {
+    this->is_use_uptime = use_timestamp;
+}
+
+/**
     * TODO: Creates a new record in the file using the circular buffer algorithm
     *
     * @return           {string}                                    path_to_file                                Ścieżka do badanego pliku
