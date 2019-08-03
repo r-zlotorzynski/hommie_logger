@@ -369,9 +369,9 @@ void class_hommie_logger::print_logs( HardwareSerial &COM ) {
     * @param            {boolean}                                   is_used_sd                                  Whether the file should be examined in the internal or external file system
     * @param            {boolean}                                   method_access                               Is access to the file includes reading, writing, adding
     * @example
-    *   0 - tylko odczyt
-    *   1 - zapis
-    *   2 - dopisanie do pliku
+    *   0 - read only
+    *   1 - write
+    *   2 - append
     * @return           {handler}                                                                               File handler
     * @public
 */
